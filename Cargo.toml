@@ -1,0 +1,14 @@
+[package]
+name = "repeated-assert"
+version = "0.1.0"
+authors = ["Daniel Faust <hessijames@gmail.com>"]
+description = "An assertion macro that tries to assert expressions multiple times"
+keywords = ["test", "testing", "integration testing"]
+homepage = "https://github.com/dfaust/repeated-assert"
+repository = "https://github.com/dfaust/repeated-assert.git"
+readme = "README.md"
+license = "MIT"
+
+[badges]
+travis-ci = { repository = "dfaust/repeated-assert" }
+appveyor = { repository = "dfaust/repeated-assert" }
