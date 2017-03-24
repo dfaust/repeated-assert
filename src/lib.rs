@@ -115,10 +115,15 @@ mod tests {
     use std::sync::{Arc, Mutex};
     use std::time::Duration;
 
+    #[cfg(not(windows))]
+    static STEP_MS: u64 = 1;
+    #[cfg(windows)]
+    static STEP_MS: u64 = 100;
+
     fn spawn_thread(x: Arc<Mutex<i32>>) {
         thread::spawn(move || {
             loop {
-                thread::sleep(Duration::from_millis(10));
+                thread::sleep(Duration::from_millis(10 * STEP_MS));
                 if let Ok(mut x) = x.lock() {
                     *x += 1;
                 }
@@ -132,7 +137,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert!{ 5, Duration::from_millis(5);
+        repeated_assert!{ 5, Duration::from_millis(5 * STEP_MS);
             if *x.lock().unwrap() > 0;
         };
     }
@@ -144,7 +149,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert!{ 3, Duration::from_millis(1);
+        repeated_assert!{ 3, Duration::from_millis(1 * STEP_MS);
             if *x.lock().unwrap() > 0;
         };
     }
@@ -157,7 +162,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert!{ 5, Duration::from_millis(5);
+        repeated_assert!{ 5, Duration::from_millis(5 * STEP_MS);
             if *x.lock().unwrap() > 0;
             eq a, b;
         };
@@ -172,7 +177,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert!{ 3, Duration::from_millis(1);
+        repeated_assert!{ 3, Duration::from_millis(1 * STEP_MS);
             if *x.lock().unwrap() > 0;
             eq a, b;
         };
@@ -187,7 +192,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert!{ 5, Duration::from_millis(5);
+        repeated_assert!{ 5, Duration::from_millis(5 * STEP_MS);
             if *x.lock().unwrap() > 0;
             eq a, b;
         };
@@ -199,7 +204,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert!{ 5, Duration::from_millis(5);
+        repeated_assert!{ 5, Duration::from_millis(5 * STEP_MS);
             let y = *x.lock().unwrap();
             if y > 0;
         };
@@ -212,7 +217,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert!{ 3, Duration::from_millis(1);
+        repeated_assert!{ 3, Duration::from_millis(1 * STEP_MS);
             let y = *x.lock().unwrap();
             if y > 0;
         };
