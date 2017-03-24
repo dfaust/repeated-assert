@@ -1,9 +1,9 @@
-# repeated_assert
+# repeated-assert
 
-[![Build Status](https://travis-ci.org/dfaust/repeated_assert.svg?branch=master)](https://travis-ci.org/dfaust/repeated_assert)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/github/dfaust/repeated_assert?svg=true)](https://ci.appveyor.com/project/dfaust/repeated_assert)
-[![Crate version](https://img.shields.io/crates/v/repeated_assert.svg)](https://crates.io/crates/repeated_assert)
-[![Documentation](https://img.shields.io/badge/documentation-docs.rs-df3600.svg)](https://docs.rs/repeated_assert)
+[![Build Status](https://travis-ci.org/dfaust/repeated-assert.svg?branch=master)](https://travis-ci.org/dfaust/repeated-assert)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/github/dfaust/repeated-assert?svg=true)](https://ci.appveyor.com/project/dfaust/repeated-assert)
+[![Crate version](https://img.shields.io/crates/v/repeated-assert.svg)](https://crates.io/crates/repeated-assert)
+[![Documentation](https://img.shields.io/badge/documentation-docs.rs-df3600.svg)](https://docs.rs/repeated-assert)
 
 An assertion macro that tries to assert expressions multiple times
 
