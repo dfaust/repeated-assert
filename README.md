@@ -16,11 +16,12 @@ Waiting for a short time might result in a failing test, while waiting too long 
 
 ## Examples
 
-Waiting for a file to appear and variable `x` to equal `3` (re-try up to 10 times, wait 50 ms between tries)
+Wait for a file to appear, calculate the checksum and then assert the checksum is to equal to `1234` (re-try up to 10 times, wait 50 ms between tries)
 
 ```rust
 repeated_assert!{ 10, Duration::from_millis(50);
     if Path::new("should_appear_soon.txt").exists();
-    eq x, 3;
+    let checksum = crc("should_appear_soon.txt");
+    eq checksum, 1234;
 };
 ```

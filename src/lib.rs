@@ -33,6 +33,15 @@
 //!     eq x, 3;
 //! };
 //! ```
+//!
+//! Temporary variables
+//!
+//! ```rust,ignore
+//! repeated_assert!{ 10, Duration::from_millis(50);
+//!     let checksum = crc("file_is_being_written.txt");
+//!     eq checksum, 1234;
+//! };
+//! ```
 #![warn(missing_docs)]
 
 #[macro_export]
@@ -68,6 +77,11 @@ macro_rules! __repeated_assert {
         assert_eq!($left, $right, stringify!($left != $right));
         __repeated_assert!{ @final, $($tt)+ }
     };
+    (@final, let $($pat:pat)|+ = $expr:expr; $($tt:tt)+) => {
+        match $expr {
+            $($pat)|+ => { __repeated_assert!{ @final, $($tt)+ } }
+        }
+    };
     (if $expr:expr;) => {
         $expr
     };
@@ -86,6 +100,11 @@ macro_rules! __repeated_assert {
             __repeated_assert!{ $($tt)+ }
         } else {
             false
+        }
+    };
+    (let $($pat:pat)|+ = $expr:expr; $($tt:tt)+) => {
+        match $expr {
+            $($pat)|+ => { __repeated_assert!{ $($tt)+ } }
         }
     };
 }
@@ -171,6 +190,31 @@ mod tests {
         repeated_assert!{ 5, Duration::from_millis(5);
             if *x.lock().unwrap() > 0;
             eq a, b;
+        };
+    }
+
+    #[test]
+    fn let_success() {
+        let x = Arc::new(Mutex::new(0));
+
+        spawn_thread(x.clone());
+
+        repeated_assert!{ 5, Duration::from_millis(5);
+            let y = *x.lock().unwrap();
+            if y > 0;
+        };
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion failed: y > 0")]
+    fn let_failure() {
+        let x = Arc::new(Mutex::new(0));
+
+        spawn_thread(x.clone());
+
+        repeated_assert!{ 3, Duration::from_millis(1);
+            let y = *x.lock().unwrap();
+            if y > 0;
         };
     }
 }
