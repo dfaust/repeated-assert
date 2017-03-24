@@ -115,9 +115,6 @@ mod tests {
     use std::sync::{Arc, Mutex};
     use std::time::Duration;
 
-    #[cfg(not(windows))]
-    static STEP_MS: u64 = 1;
-    #[cfg(windows)]
     static STEP_MS: u64 = 100;
 
     fn spawn_thread(x: Arc<Mutex<i32>>) {
