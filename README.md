@@ -11,7 +11,7 @@ An assertion macro that tries to assert expressions multiple times
 or the maximum amount of repetitions has been reached.
 The current thread will be blocked between tries.
 
-`repeated_assert!` is useful when waiting for events from another thread (or process).
+This is useful when waiting for events from another thread (or process).
 Waiting for a short time might result in a failing test, while waiting too long is a waste of time.
 
 ## Examples

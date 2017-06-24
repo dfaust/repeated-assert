@@ -4,7 +4,7 @@
 //! or the maximum amount of repetitions has been reached.
 //! The current thread will be blocked between tries.
 //!
-//! `repeated_assert!` is useful when waiting for events from another thread (or process).
+//! This is useful when waiting for events from another thread (or process).
 //! Waiting for a short time might result in a failing test, while waiting too long is a waste of time.
 //!
 //! # Examples
@@ -42,6 +42,22 @@
 //!     eq checksum, 1234;
 //! };
 //! ```
+//!
+//! # Catch failing tests
+//!
+//! It's also possible to "catch" failing tests by executing some code if the expressions couldn't be asserted in order to trigger an alternate strategy.
+//! This can be useful if the tested program relies on an unreliable service.
+//! This counters the idea of a test to some degree, so use it only if the unreliable service is not critical for your program.
+//!
+//! Poke unreliable service after 5 unsuccessful assertion attempts
+//!
+//! ```rust,ignore
+//! repeated_assert!{ 10, Duration::from_millis(50), 5, {
+//!         // poke unreliable service
+//!     };
+//!     if Path::new("should_appear_soon.txt").exists();
+//! };
+//! ```
 #![warn(missing_docs)]
 
 #[macro_export]
@@ -50,6 +66,22 @@ macro_rules! repeated_assert {
         for i in 0..$repetitions {
             if i == $repetitions - 1 {
                 __repeated_assert!{ @final, $($tt)* }
+            } else {
+                if __repeated_assert!{ $($tt)* } {
+                    break;
+                }
+                thread::sleep($delay);
+            }
+        }
+    };
+    ($repetitions:expr, $delay:expr, $repetitions_catch:expr, $catch:block; $($tt:tt)*) => {
+        for i in 0..$repetitions {
+            if i == $repetitions - 1 {
+                __repeated_assert!{ @final, $($tt)* }
+            } else if i == $repetitions_catch {
+                println!("repeated-assert: executing catch block");
+                $catch
+                thread::sleep($delay);
             } else {
                 if __repeated_assert!{ $($tt)* } {
                     break;
