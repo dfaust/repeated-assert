@@ -70,7 +70,7 @@ macro_rules! repeated_assert {
                 if __repeated_assert!{ $($tt)* } {
                     break;
                 }
-                thread::sleep($delay);
+                ::std::thread::sleep($delay);
             }
         }
     };
@@ -81,12 +81,12 @@ macro_rules! repeated_assert {
             } else if i == $repetitions_catch {
                 println!("repeated-assert: executing catch block");
                 $catch
-                thread::sleep($delay);
+                ::std::thread::sleep($delay);
             } else {
                 if __repeated_assert!{ $($tt)* } {
                     break;
                 }
-                thread::sleep($delay);
+                ::std::thread::sleep($delay);
             }
         }
     };
