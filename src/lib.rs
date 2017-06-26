@@ -251,4 +251,17 @@ mod tests {
             if y > 0;
         };
     }
+
+    #[test]
+    fn catch() {
+        let x = Arc::new(Mutex::new(-1_000));
+
+        spawn_thread(x.clone());
+
+        repeated_assert!{ 10, Duration::from_millis(5 * STEP_MS), 5, {
+                *x.lock().unwrap() = 0;
+            };
+            if *x.lock().unwrap() > 0;
+        };
+    }
 }
