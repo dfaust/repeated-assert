@@ -79,7 +79,8 @@ macro_rules! repeated_assert {
             if i == $repetitions - 1 {
                 __repeated_assert!{ @final, $($tt)* }
             } else if i == $repetitions_catch {
-                println!("repeated-assert: executing catch block");
+                let thread_name = ::std::thread::current().name().unwrap_or("unnamed thread").to_owned();
+                println!("{}: executing repeated-assert catch block", thread_name);
                 $catch
                 ::std::thread::sleep($delay);
             } else {
