@@ -214,7 +214,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "assertion failed: `(left == right)` (left: `11`, right: `12`): a != b")]
+    #[should_panic(expected = "a != b")]
     fn multiple_failure_2() {
         let x = Arc::new(Mutex::new(0));
         let a = 11;
