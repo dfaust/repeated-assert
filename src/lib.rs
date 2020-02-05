@@ -61,6 +61,7 @@
 //!     }
 //! );
 //! ```
+#![feature(proc_macro_hygiene, async_closure, doc_cfg)]
 
 use lazy_static::lazy_static;
 
@@ -161,6 +162,36 @@ where
     assert()
 }
 
+#[cfg(feature = "async")]
+#[doc(cfg(feature = "async"))]
+pub async fn that_async<A, F, R>(repetitions: usize, delay: Duration, assert: A) -> R
+where
+    A: Fn() -> F,
+    F: std::future::Future<Output = R>,
+{
+    use futures::future::FutureExt;
+
+    // add current thread to ignore list
+    let ignore_guard = IgnoreGuard::new();
+
+    for _ in 0..(repetitions - 1) {
+        // run assertions, catching panics
+        let result = panic::AssertUnwindSafe(assert()).catch_unwind().await;
+        // return if assertions succeeded
+        if let Ok(value) = result {
+            return value;
+        }
+        // or sleep until the next try
+        tokio::time::delay_for(delay).await;
+    }
+
+    // remove current thread from ignore list
+    drop(ignore_guard);
+
+    // run assertions without catching panics
+    assert().await
+}
+
 /// Run the provided function `assert` up to `repetitions` times with a `delay` in between tries.
 /// Execute the provided function `catch` after `repetitions_catch` failed tries in order to trigger an alternate strategy.
 ///
@@ -231,6 +262,55 @@ where
     assert()
 }
 
+#[cfg(feature = "async")]
+#[doc(cfg(feature = "async"))]
+pub async fn with_catch_async<A, F, C, G, R>(repetitions: usize, delay: Duration, repetitions_catch: usize, catch: C, assert: A) -> R
+where
+    A: Fn() -> F,
+    F: std::future::Future<Output = R>,
+    C: FnOnce() -> G,
+    G: std::future::Future<Output = ()>,
+{
+    use futures::future::FutureExt;
+
+    let ignore_guard = IgnoreGuard::new();
+
+    for _ in 0..repetitions_catch {
+        // run assertions, catching panics
+        let result = panic::AssertUnwindSafe(assert()).catch_unwind().await;
+        // return if assertions succeeded
+        if let Ok(value) = result {
+            return value;
+        }
+        // or sleep until the next try
+        tokio::time::delay_for(delay).await;
+    }
+
+    let thread_name = thread::current()
+        .name()
+        .unwrap_or("<unnamed thread>")
+        .to_string();
+    println!("{}: executing repeated-assert catch block", thread_name);
+    catch().await;
+
+    for _ in repetitions_catch..(repetitions - 1) {
+        // run assertions, catching panics
+        let result = panic::AssertUnwindSafe(assert()).catch_unwind().await;
+        // return if assertions succeeded
+        if let Ok(value) = result {
+            return value;
+        }
+        // or sleep until the next try
+        tokio::time::delay_for(delay).await;
+    }
+
+    // remove current thread from ignore list
+    drop(ignore_guard);
+
+    // run assertions without catching panics
+    assert().await
+}
+
 #[cfg(test)]
 mod tests {
     use crate as repeated_assert;
@@ -282,6 +362,18 @@ mod tests {
         });
     }
 
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn single_success_async() {
+        let x = Arc::new(Mutex::new(0));
+
+        spawn_thread(x.clone());
+
+        repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), async || {
+            assert!(*x.lock().unwrap() > 0);
+        }).await;
+    }
+
     #[test]
     #[should_panic(expected = "assertion failed: *x.lock().unwrap() > 0")]
     fn single_failure() {
@@ -292,6 +384,19 @@ mod tests {
         repeated_assert::that(3, Duration::from_millis(1 * STEP_MS), || {
             assert!(*x.lock().unwrap() > 0);
         });
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    #[should_panic(expected = "assertion failed: *x.lock().unwrap() > 0")]
+    async fn single_failure_async() {
+        let x = Arc::new(Mutex::new(0));
+
+        spawn_thread(x.clone());
+
+        repeated_assert::that_async(3, Duration::from_millis(1 * STEP_MS), async || {
+            assert!(*x.lock().unwrap() > 0);
+        }).await;
     }
 
     #[test]
@@ -306,6 +411,21 @@ mod tests {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
         });
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn multiple_success_async() {
+        let x = Arc::new(Mutex::new(0));
+        let a = 11;
+        let b = 11;
+
+        spawn_thread(x.clone());
+
+        repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), async || {
+            assert!(*x.lock().unwrap() > 0);
+            assert_eq!(a, b);
+        }).await;
     }
 
     #[test]
@@ -323,6 +443,22 @@ mod tests {
         });
     }
 
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    #[should_panic(expected = "assertion failed: *x.lock().unwrap() > 0")]
+    async fn multiple_failure_1_async() {
+        let x = Arc::new(Mutex::new(0));
+        let a = 11;
+        let b = 11;
+
+        spawn_thread(x.clone());
+
+        repeated_assert::that_async(3, Duration::from_millis(1 * STEP_MS), async || {
+            assert!(*x.lock().unwrap() > 0);
+            assert_eq!(a, b);
+        }).await;
+    }
+
     #[test]
     #[should_panic(expected = "assertion failed: `(left == right)")]
     fn multiple_failure_2() {
@@ -336,6 +472,22 @@ mod tests {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
         });
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    #[should_panic(expected = "assertion failed: `(left == right)")]
+    async fn multiple_failure_2_async() {
+        let x = Arc::new(Mutex::new(0));
+        let a = 11;
+        let b = 12;
+
+        spawn_thread(x.clone());
+
+        repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), async || {
+            assert!(*x.lock().unwrap() > 0);
+            assert_eq!(a, b);
+        }).await;
     }
 
     #[test]
@@ -355,5 +507,25 @@ mod tests {
                 assert!(*x.lock().unwrap() > 0);
             },
         );
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn catch_async() {
+        let x = Arc::new(Mutex::new(-1_000));
+
+        spawn_thread(x.clone());
+
+        repeated_assert::with_catch_async(
+            10,
+            Duration::from_millis(5 * STEP_MS),
+            5,
+            async || {
+                *x.lock().unwrap() = 0;
+            },
+            async || {
+                assert!(*x.lock().unwrap() > 0);
+            },
+        ).await;
     }
 }
