@@ -182,7 +182,7 @@ where
             return value;
         }
         // or sleep until the next try
-        tokio::time::delay_for(delay).await;
+        tokio::time::sleep(delay).await;
     }
 
     // remove current thread from ignore list
@@ -283,7 +283,7 @@ where
             return value;
         }
         // or sleep until the next try
-        tokio::time::delay_for(delay).await;
+        tokio::time::sleep(delay).await;
     }
 
     let thread_name = thread::current()
@@ -301,7 +301,7 @@ where
             return value;
         }
         // or sleep until the next try
-        tokio::time::delay_for(delay).await;
+        tokio::time::sleep(delay).await;
     }
 
     // remove current thread from ignore list
