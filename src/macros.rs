@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 /// An assertion macro that tries to assert expressions multiple times
 ///
 /// ## Examples
