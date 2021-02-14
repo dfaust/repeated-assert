@@ -1,5 +1,7 @@
 //! Run assertions multiple times
 //!
+//! **This crate currently requires the nightly version of the Rust compiler.**
+//!
 //! `repeated_assert` runs assertions until they either pass
 //! or the maximum amount of repetitions has been reached.
 //! The current thread will be blocked between tries.
