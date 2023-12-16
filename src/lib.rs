@@ -9,6 +9,10 @@
 //! This is useful when waiting for events from another thread (or process).
 //! Waiting for a short time might result in a failing test, while waiting too long is a waste of time.
 //!
+//! # Crate features
+//!
+//! * **async** - Enables the `that_async` and `with_catch_async` functions. It depends on the `futures` and `tokio` crates, which is why it's disabled by default.
+//!
 //! # Examples
 //!
 //! Waiting for a file to appear (re-try up to 10 times, wait 50 ms between tries)
@@ -43,6 +47,15 @@
 //!     let checksum = crc("should_appear_soon.txt")?;
 //!     assert_eq!(checksum, 1234);
 //! })?;
+//! ```
+//!
+//! Async
+//!
+//! ```rust,ignore
+//! repeated_assert::that_async(10, Duration::from_millis(50), || async {
+//!     let status = query_db().await;
+//!     assert_eq!(status, "success");
+//! }).await;
 //! ```
 //!
 //! # Catch failing tests
@@ -266,7 +279,13 @@ where
 
 #[cfg(feature = "async")]
 #[doc(cfg(feature = "async"))]
-pub async fn with_catch_async<A, F, C, G, R>(repetitions: usize, delay: Duration, repetitions_catch: usize, catch: C, assert: A) -> R
+pub async fn with_catch_async<A, F, C, G, R>(
+    repetitions: usize,
+    delay: Duration,
+    repetitions_catch: usize,
+    catch: C,
+    assert: A,
+) -> R
 where
     A: Fn() -> F,
     F: std::future::Future<Output = R>,
@@ -373,7 +392,8 @@ mod tests {
 
         repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), async || {
             assert!(*x.lock().unwrap() > 0);
-        }).await;
+        })
+        .await;
     }
 
     #[test]
@@ -398,7 +418,8 @@ mod tests {
 
         repeated_assert::that_async(3, Duration::from_millis(STEP_MS), async || {
             assert!(*x.lock().unwrap() > 0);
-        }).await;
+        })
+        .await;
     }
 
     #[test]
@@ -427,7 +448,8 @@ mod tests {
         repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), async || {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
-        }).await;
+        })
+        .await;
     }
 
     #[test]
@@ -458,7 +480,8 @@ mod tests {
         repeated_assert::that_async(3, Duration::from_millis(STEP_MS), async || {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
-        }).await;
+        })
+        .await;
     }
 
     #[test]
@@ -489,7 +512,8 @@ mod tests {
         repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), async || {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
-        }).await;
+        })
+        .await;
     }
 
     #[test]
@@ -528,6 +552,7 @@ mod tests {
             async || {
                 assert!(*x.lock().unwrap() > 0);
             },
-        ).await;
+        )
+        .await;
     }
 }
