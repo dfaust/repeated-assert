@@ -462,7 +462,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "assertion failed: `(left == right)")]
+    #[should_panic(expected = "assertion `left == right` failed")]
     fn multiple_failure_2() {
         let x = Arc::new(Mutex::new(0));
         let a = 11;
@@ -478,7 +478,7 @@ mod tests {
 
     #[cfg(feature = "async")]
     #[tokio::test]
-    #[should_panic(expected = "assertion failed: `(left == right)")]
+    #[should_panic(expected = "assertion `left == right` failed")]
     async fn multiple_failure_2_async() {
         let x = Arc::new(Mutex::new(0));
         let a = 11;
