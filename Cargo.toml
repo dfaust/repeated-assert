@@ -1,6 +1,6 @@
 [package]
 name = "repeated-assert"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Daniel Faust <hessijames@gmail.com>"]
 description = "Run assertions multiple times"
 keywords = ["test", "testing", "integration-testing"]

@@ -1,3 +1,7 @@
+0.4.0 (2023-12-16):
+- Remove unstable features
+- Fix tests
+
 0.3.0 (2021-02-14):
 - Add async support using tokio
 
