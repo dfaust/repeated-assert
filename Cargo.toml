@@ -12,10 +12,6 @@ readme = "README.md"
 license = "MIT"
 edition = "2018"
 
-[badges]
-travis-ci = { repository = "dfaust/repeated-assert" }
-appveyor = { repository = "dfaust/repeated-assert" }
-
 [features]
 async = ["futures", "tokio"]
 

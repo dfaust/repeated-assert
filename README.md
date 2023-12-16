@@ -1,7 +1,5 @@
 # repeated-assert
 
-[![Build Status](https://travis-ci.org/dfaust/repeated-assert.svg?branch=master)](https://travis-ci.org/dfaust/repeated-assert)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/github/dfaust/repeated-assert?svg=true)](https://ci.appveyor.com/project/dfaust/repeated-assert)
 [![Crate version](https://img.shields.io/crates/v/repeated-assert.svg)](https://crates.io/crates/repeated-assert)
 [![Documentation](https://img.shields.io/badge/documentation-docs.rs-df3600.svg)](https://docs.rs/repeated-assert)
 
