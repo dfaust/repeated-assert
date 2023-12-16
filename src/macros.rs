@@ -134,7 +134,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert! { 3, Duration::from_millis(1 * STEP_MS);
+        repeated_assert! { 3, Duration::from_millis(STEP_MS);
             if *x.lock().unwrap() > 0;
         };
     }
@@ -162,7 +162,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert! { 3, Duration::from_millis(1 * STEP_MS);
+        repeated_assert! { 3, Duration::from_millis(STEP_MS);
             if *x.lock().unwrap() > 0;
             eq a, b;
         };
@@ -202,7 +202,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert! { 3, Duration::from_millis(1 * STEP_MS);
+        repeated_assert! { 3, Duration::from_millis(STEP_MS);
             let y = *x.lock().unwrap();
             if y > 0;
         };

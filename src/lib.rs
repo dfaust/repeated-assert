@@ -148,7 +148,7 @@ where
 
     for _ in 0..(repetitions - 1) {
         // run assertions, catching panics
-        let result = panic::catch_unwind(panic::AssertUnwindSafe(|| assert()));
+        let result = panic::catch_unwind(panic::AssertUnwindSafe(&assert));
         // return if assertions succeeded
         if let Ok(value) = result {
             return value;
@@ -224,13 +224,13 @@ pub fn with_catch<A, C, R>(
 ) -> R
 where
     A: Fn() -> R,
-    C: FnOnce() -> (),
+    C: FnOnce(),
 {
     let ignore_guard = IgnoreGuard::new();
 
     for _ in 0..repetitions_catch {
         // run assertions, catching panics
-        let result = panic::catch_unwind(panic::AssertUnwindSafe(|| assert()));
+        let result = panic::catch_unwind(panic::AssertUnwindSafe(&assert));
         // return if assertions succeeded
         if let Ok(value) = result {
             return value;
@@ -248,7 +248,7 @@ where
 
     for _ in repetitions_catch..(repetitions - 1) {
         // run assertions, catching panics
-        let result = panic::catch_unwind(panic::AssertUnwindSafe(|| assert()));
+        let result = panic::catch_unwind(panic::AssertUnwindSafe(&assert));
         // return if assertions succeeded
         if let Ok(value) = result {
             return value;
@@ -383,7 +383,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert::that(3, Duration::from_millis(1 * STEP_MS), || {
+        repeated_assert::that(3, Duration::from_millis(STEP_MS), || {
             assert!(*x.lock().unwrap() > 0);
         });
     }
@@ -396,7 +396,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert::that_async(3, Duration::from_millis(1 * STEP_MS), async || {
+        repeated_assert::that_async(3, Duration::from_millis(STEP_MS), async || {
             assert!(*x.lock().unwrap() > 0);
         }).await;
     }
@@ -439,7 +439,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert::that(3, Duration::from_millis(1 * STEP_MS), || {
+        repeated_assert::that(3, Duration::from_millis(STEP_MS), || {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
         });
@@ -455,7 +455,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert::that_async(3, Duration::from_millis(1 * STEP_MS), async || {
+        repeated_assert::that_async(3, Duration::from_millis(STEP_MS), async || {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
         }).await;
