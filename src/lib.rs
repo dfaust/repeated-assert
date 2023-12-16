@@ -76,7 +76,7 @@
 //!     }
 //! );
 //! ```
-#![feature(proc_macro_hygiene, async_closure, doc_cfg)]
+#![feature(proc_macro_hygiene, doc_cfg)]
 
 use lazy_static::lazy_static;
 
@@ -390,7 +390,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), async || {
+        repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), || async {
             assert!(*x.lock().unwrap() > 0);
         })
         .await;
@@ -416,7 +416,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert::that_async(3, Duration::from_millis(STEP_MS), async || {
+        repeated_assert::that_async(3, Duration::from_millis(STEP_MS), || async {
             assert!(*x.lock().unwrap() > 0);
         })
         .await;
@@ -445,7 +445,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), async || {
+        repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), || async {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
         })
@@ -477,7 +477,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert::that_async(3, Duration::from_millis(STEP_MS), async || {
+        repeated_assert::that_async(3, Duration::from_millis(STEP_MS), || async {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
         })
@@ -509,7 +509,7 @@ mod tests {
 
         spawn_thread(x.clone());
 
-        repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), async || {
+        repeated_assert::that_async(5, Duration::from_millis(5 * STEP_MS), || async {
             assert!(*x.lock().unwrap() > 0);
             assert_eq!(a, b);
         })
@@ -546,10 +546,10 @@ mod tests {
             10,
             Duration::from_millis(5 * STEP_MS),
             5,
-            async || {
+            || async {
                 *x.lock().unwrap() = 0;
             },
-            async || {
+            || async {
                 assert!(*x.lock().unwrap() > 0);
             },
         )
