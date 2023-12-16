@@ -76,8 +76,6 @@
 //!     }
 //! );
 //! ```
-#![feature(doc_cfg)]
-
 use lazy_static::lazy_static;
 
 use std::{collections::HashSet, panic, sync::Mutex, thread, time::Duration};
@@ -178,7 +176,7 @@ where
 }
 
 #[cfg(feature = "async")]
-#[doc(cfg(feature = "async"))]
+// #[doc(cfg(feature = "async"))]
 pub async fn that_async<A, F, R>(repetitions: usize, delay: Duration, assert: A) -> R
 where
     A: Fn() -> F,
@@ -278,7 +276,7 @@ where
 }
 
 #[cfg(feature = "async")]
-#[doc(cfg(feature = "async"))]
+// #[doc(cfg(feature = "async"))]
 pub async fn with_catch_async<A, F, C, G, R>(
     repetitions: usize,
     delay: Duration,
