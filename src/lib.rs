@@ -76,7 +76,7 @@
 //!     }
 //! );
 //! ```
-#![feature(proc_macro_hygiene, doc_cfg)]
+#![feature(doc_cfg)]
 
 use lazy_static::lazy_static;
 
