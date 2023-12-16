@@ -76,19 +76,24 @@
 //!     }
 //! );
 //! ```
-use lazy_static::lazy_static;
-
-use std::{collections::HashSet, panic, sync::Mutex, thread, time::Duration};
+use std::{
+    collections::HashSet,
+    panic,
+    sync::{Mutex, OnceLock},
+    thread,
+    time::Duration,
+};
 
 mod macros;
 
-lazy_static! {
-    static ref IGNORE_THREADS: Mutex<HashSet<String>> = {
+fn ignore_threads() -> &'static Mutex<HashSet<String>> {
+    static INSTANCE: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
+    INSTANCE.get_or_init(|| {
         // get original panic hook
         let panic_hook = panic::take_hook();
         // set custom panic hook
         panic::set_hook(Box::new(move |panic_info| {
-            let ignore_threads = IGNORE_THREADS.lock().expect("lock ignore threads");
+            let ignore_threads = ignore_threads().lock().expect("lock ignore threads");
             if let Some(thread_name) = thread::current().name() {
                 if !ignore_threads.contains(thread_name) {
                     // call original panic hook
@@ -100,7 +105,7 @@ lazy_static! {
             }
         }));
         Mutex::new(HashSet::new())
-    };
+    })
 }
 
 struct IgnoreGuard;
@@ -108,7 +113,7 @@ struct IgnoreGuard;
 impl IgnoreGuard {
     fn new() -> IgnoreGuard {
         if let Some(thread_name) = thread::current().name() {
-            IGNORE_THREADS
+            ignore_threads()
                 .lock()
                 .expect("lock ignore threads")
                 .insert(thread_name.to_string());
@@ -120,7 +125,7 @@ impl IgnoreGuard {
 impl Drop for IgnoreGuard {
     fn drop(&mut self) {
         if let Some(thread_name) = thread::current().name() {
-            IGNORE_THREADS
+            ignore_threads()
                 .lock()
                 .expect("lock ignore threads")
                 .remove(thread_name);
